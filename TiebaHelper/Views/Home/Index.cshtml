@@ -1,24 +1,81 @@
-﻿<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS, and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>ASP.NET Web API is a framework that makes it easy to build HTTP services that reach
-        a broad range of clients, including browsers and mobile devices. ASP.NET Web API
-        is an ideal platform for building RESTful applications on the .NET Framework.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301870">Learn more &raquo;</a></p>
+﻿
+@{
+    /**/
+
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://www.layuicdn.com/layer/layer.js"></script>
+    <title>@ViewBag.Title</title>
+    <script>
+        var BDUSS = "";
+        var STOKEN = "";
+        var USERNAME = "";
+        $(function () {
+            //获取BDUSS
+            $("#getbduss_btn").click(function () {
+              $.ajax({
+                url: "/api/tieba/CheckScanIsSuccess",
+                type: "get",
+                dataType: "json",
+                data: { sign:"@ViewBag.Sign"},
+                success: function (data) {
+                    BDUSS = data["bduss"];
+                    STOKEN = data["stoken"];
+                    USERNAME = data["username"];
+                    $("#account-info").show();
+                    var firstHtml = $("#account-info").html();
+                    var lastHtml = firstHtml.replace(/{{USERNAME}}/g, USERNAME);
+                    lastHtml = lastHtml.replace(/{{BDUSS}}/g, BDUSS);
+                    lastHtml = lastHtml.replace(/{{STOKEN}}/g, STOKEN);
+                    $("#account-info").html(lastHtml);
+                }
+            });
+            });
+
+          //一键签到
+        });
+
+        function signinFunc() {
+            layer.msg("耐心等待，成功会提示！");
+            $.ajax({
+                url: "/api/tieba/SignIn",
+                type: "get",
+                dataType: "json",
+                data: { STOKEN: STOKEN, BDUSS: BDUSS },
+                success: function (data) {
+                    alert("签到成功，可能会有漏签，一段时间再来！");
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container col-xs-12 col-sm-10 col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">熊沐风贴吧签到助手</h5>
+            </div>
+            <div class="card-body text-center">
+                <p><img src="https://@ViewBag.Qrcode" /></p>
+                <p><input type="button" id="getbduss_btn" class="btn btn-info btn-lg" value="扫码以后再点击"></p>
+                <div id="account-info" style="display:none">
+                    <h4 class="badge badge-primary">百度名称：{{USERNAME}}</h4><br />
+                    <h4 class="badge badge-danger">STOKEN：{{STOKEN}}</h4><br />
+                    <textarea class="form-control m-auto" style="height:150px;width:80%">BDUSS：{{BDUSS}}</textarea>
+                    <input type="button" onclick="signinFunc()" class="mt-3 btn btn-danger" value="一键签到" />
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301871">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301872">Learn more &raquo;</a></p>
-    </div>
-</div>
+</body>
+</html>
